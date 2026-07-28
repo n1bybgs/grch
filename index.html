@@ -10,7 +10,6 @@
  * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
  body { background: #f5f6fa; color: #2f3640; padding: 15px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
  .container { width: 100%; max-width: 500px; background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-top: 10px; }
- 
  h1 { font-size: 22px; color: #2c3e50; margin-bottom: 5px; text-align: center; }
  .subtitle { color: #7f8c8d; text-align: center; margin-bottom: 15px; font-size: 13px; }
  .section-title { font-weight: bold; color: #2c3e50; font-size: 15px; margin: 15px 0 8px 0; border-top: 1px solid #e1e8ed; padding-top: 12px; }
@@ -21,7 +20,7 @@
  .cat-tabs { display: flex; gap: 5px; }
  .cat-tab-btn { flex: 1; padding: 8px 0; border: 2px solid #3498db; background: white; color: #3498db; border-radius: 6px; font-size: 13px; font-weight: bold; cursor: pointer; transition: 0.15s; }
  .cat-tab-btn.active { background: #3498db; color: white; }
-
+ 
  /* Кнопки меню */
  .menu-btn { width: 100%; padding: 12px; margin: 6px 0; background: #34495e; color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; transition: 0.2s; display: flex; justify-content: space-between; align-items: center; }
  .menu-btn:hover { background: #2c3e50; }
@@ -36,7 +35,7 @@
  .topic-card:active { background: #edf2f7; }
  .topic-title { font-weight: 600; color: #2c3e50; text-align: left; padding-right: 15px; }
  .topic-count { font-size: 11px; color: #7f8c8d; white-space: nowrap; background: #e1e8ed; padding: 3px 8px; border-radius: 4px; font-weight: bold; }
-
+ 
  /* Сетка билетов */
  .tickets-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
  .ticket-card { background: #f8f9fa; border: 2px solid #e1e8ed; border-radius: 8px; padding: 8px 4px; text-align: center; cursor: pointer; font-weight: bold; transition: 0.15s; font-size: 13px; display: flex; flex-direction: column; justify-content: space-between; min-height: 80px; }
@@ -55,16 +54,13 @@
  
  .explanation-box { background: #ebf5fb; border-left: 4px solid #3498db; padding: 12px; border-radius: 0 8px 8px 0; margin: 10px 0; font-size: 13px; line-height: 1.4; color: #2c3e50; display: none; animation: fadeIn 0.3s ease; }
  @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
- 
  .option-btn { width: 100%; padding: 12px; margin: 6px 0; background: #f8f9fa; border: 2px solid #e1e8ed; border-radius: 8px; font-size: 14px; text-align: left; cursor: pointer; transition: 0.15s; line-height: 1.3; }
  .option-btn.correct { background: #2ecc71 !important; border-color: #27ae60 !important; color: white; font-weight: bold; }
  .option-btn.wrong { background: #e74c3c !important; border-color: #c0392b !important; color: white; }
- 
  .controls-row { display: flex; gap: 10px; margin-top: 15px; }
  .control-btn { flex: 1; padding: 12px; border: none; border-radius: 8px; font-size: 15px; font-weight: bold; cursor: pointer; }
  #next-btn { background: #3498db; color: white; display: none; }
  #leave-btn { background: #95a5a6; color: white; }
- 
  #result-screen { display: none; text-align: center; }
  .result-title { font-size: 20px; font-weight: bold; margin-bottom: 10px; }
  .status-badge { display: inline-block; padding: 6px 15px; border-radius: 20px; font-weight: bold; color: white; margin-bottom: 15px; font-size: 14px; display: none; }
@@ -80,7 +76,6 @@
  <div id="main-screen" class="container">
  <h1>Тренажер ГРЧЦ</h1>
  <p class="subtitle">Подготовка к сдаче радиолюбительского экзамена</p>
- 
  <div class="category-selector-box">
  <p>Ваша категория (для фильтрации обучения):</p>
  <div class="cat-tabs">
@@ -90,19 +85,17 @@
  <button class="cat-tab-btn" id="cat-btn-1" onclick="setTargetCategory(1)">1-я</button>
  </div>
  </div>
- 
  <p class="section-title" style="border-top: none; padding-top: 0;"> Симуляция экзамена ГРЧЦ:</p>
  <button class="menu-btn exam-btn" onclick="startExam(4)"><span> Сдать на 4 категорию</span><span style="font-size:11px;font-weight:normal;">20 вопр / 60 мин</span></button>
  <button class="menu-btn exam-btn" onclick="startExam(3)"><span> Сдать на 3 категорию</span><span style="font-size:11px;font-weight:normal;">25 вопр / 60 мин</span></button>
  <button class="menu-btn exam-btn" onclick="startExam(2)"><span> Сдать на 2 категорию</span><span style="font-size:11px;font-weight:normal;">30 вопр / 60 мин</span></button>
  <button class="menu-btn exam-btn" onclick="startExam(1)"><span> Сдать на 1 категорию</span><span style="font-size:11px;font-weight:normal;">45 вопр / 60 мин</span></button>
- 
  <p class="section-title"> Дополнительные режимы:</p>
- <button class="menu-btn marathon-btn" onclick="startMarathon()"><span>Режим «Марафон»</span><span style="font-size: 11px; font-weight: normal;" id="marathon-count-text">Загрузка...</span></button>
- 
+ <div id="marathon-actions-container" style="display: flex; flex-direction: column; width: 100%;">
+ <button class="menu-btn marathon-btn" onclick="startMarathon(false)"><span>Режим «Марафон»</span><span style="font-size: 11px; font-weight: normal;" id="marathon-count-text">Загрузка...</span></button>
+ </div>
  <p class="section-title"> Изучение по темам:</p>
  <div class="topics-grid" id="topics-container"></div>
- 
  <p class="section-title"> Изучение по билетам:</p>
  <div class="tickets-grid" id="tickets-container"></div>
  </div>
@@ -145,7 +138,6 @@
  let failedQuestionsPool = []; 
  let timerInterval = null;
  let timeLeft = 0;
- 
  let targetCategory = parseInt(localStorage.getItem('grfc_target_category')) || 4;
 
  const examRules = {
@@ -181,19 +173,65 @@
  updateCategoryTabsUI();
  renderTopicsMenu();
  updateMarathonButtonUI();
+ checkMarathonProgress();
  renderTicketsMenu();
  } catch (error) {
  alert('Ошибка загрузки базы вопросов JSON.');
  }
  }
 
- function setTargetCategory(catNum) {
- targetCategory = catNum;
- localStorage.setItem('grfc_target_category', catNum);
- updateCategoryTabsUI();
- renderTopicsMenu();
- updateMarathonButtonUI();
- }
+function setTargetCategory(catNum) {
+  targetCategory = catNum;
+  localStorage.setItem('grfc_target_category', catNum);
+  updateCategoryTabsUI();
+  renderTopicsMenu();
+  // ОЧЕНЬ ВАЖНО: сначала обновляем состояние кнопок марафона, 
+  // чтобы пересчитать доступные вопросы под новую категорию
+  checkMarathonProgress(); 
+}
+
+function updateMarathonButtonUI() {
+  // Эта функция больше не нужна отдельно, так как её логика 
+  // теперь полностью находится внутри checkMarathonProgress()
+}
+
+function checkMarathonProgress() {
+  const container = document.getElementById('marathon-actions-container');
+  const saved = localStorage.getItem('marathon_save');
+  
+  // Считаем количество разрешенных вопросов для ТЕКУЩЕЙ выбранной категории
+  const allowed = allQuestions.filter(q => q.categories && q.categories.includes(targetCategory));
+  
+  if (saved) {
+    const progress = JSON.parse(saved);
+    // Если сохраненный марафон совпадает с текущей выбранной категорией
+    if (progress.cat === targetCategory) {
+      container.innerHTML = `
+        <button class="menu-btn marathon-btn" onclick="startMarathon(true)" style="background: #2980b9; margin-bottom: 4px;">
+          <span>▶ Продолжить марафон</span>
+          <span style="font-size: 11px; font-weight: normal;">Вопрос ${progress.idx + 1} из ${allowed.length}</span>
+        </button>
+        <button class="menu-btn" onclick="startMarathon(false)" style="background: #e67e22; margin-top: 2px; padding: 8px; font-size: 12px; height: auto;">
+          <span>↩ Сбросить и начать заново</span>
+        </button>
+      `;
+      return;
+    }
+  }
+  
+  // Если сохранения нет ИЛИ категория сменилась — выводим актуальное число вопросов
+  container.innerHTML = `
+    <button class="menu-btn marathon-btn" onclick="startMarathon(false)">
+      <span>Режим «Марафон»</span>
+      <span style="font-size: 11px; font-weight: normal;">${allowed.length} вопр. из 426</span>
+    </button>
+  `;
+}
+
+
+ function updateMarathonButtonUI() {
+  // Логика перенесена в checkMarathonProgress
+}
 
  function updateCategoryTabsUI() {
  for (let i = 1; i <= 4; i++) {
@@ -205,9 +243,15 @@
  }
  }
 
- function updateMarathonButtonUI() {
- const allowed = allQuestions.filter(q => q.categories && q.categories.includes(targetCategory));
- document.getElementById('marathon-count-text').innerText = `${allowed.length} вопр. из 426`;
+ function saveMarathonProgress() {
+ if (currentMode !== "marathon") return;
+ const progressData = {
+ cat: targetCategory,
+ idx: currentIndex,
+ wrongs: wrongAnswersCount,
+ failedPoolIds: failedQuestionsPool.map(q => q.id)
+ };
+ localStorage.setItem('marathon_save', JSON.stringify(progressData));
  }
 
  function renderTopicsMenu() {
@@ -217,12 +261,10 @@
  const card = document.createElement('div');
  card.className = 'topic-card';
  card.onclick = () => startTopic(t.id);
- 
  const count = allQuestions.filter(q => 
  q.topic && q.topic.toLowerCase().includes(t.keyword.toLowerCase()) &&
  q.categories && q.categories.includes(targetCategory)
  ).length;
- 
  if (count === 0) {
  card.style.opacity = "0.5";
  card.onclick = null;
@@ -295,10 +337,25 @@
  initQuizSession();
  }
 
- function startMarathon() {
+ function startMarathon(resume = false) {
  currentMode = "marathon"; activeTicketId = null; activeCategoryNum = null; activeTopicId = null;
  currentPool = allQuestions.filter(q => q.categories && q.categories.includes(targetCategory)).sort((a,b) => a.id - b.id);
  document.getElementById('timer-text').style.display = 'none';
+ if (resume) {
+ const saved = localStorage.getItem('marathon_save');
+ if (saved) {
+ const progress = JSON.parse(saved);
+ currentIndex = progress.idx;
+ wrongAnswersCount = progress.wrongs;
+ failedQuestionsPool = allQuestions.filter(q => progress.failedPoolIds.includes(q.id));
+ document.getElementById('main-screen').style.display = 'none';
+ document.getElementById('result-screen').style.display = 'none';
+ document.getElementById('quiz-screen').style.display = 'block';
+ showQuestion();
+ return;
+ }
+ }
+ localStorage.removeItem('marathon_save');
  initQuizSession();
  }
 
@@ -312,12 +369,19 @@
  document.getElementById('timer-text').style.display = 'none';
  initQuizSession();
  }
-
  function startErrorsRetry() {
- currentMode = "errors"; currentPool = [...failedQuestionsPool];
+ currentPool = [...failedQuestionsPool];
+ failedQuestionsPool = []; 
+ currentMode = "errors";
  document.getElementById('timer-text').style.display = 'none';
- initQuizSession();
+ currentIndex = 0;
+ wrongAnswersCount = 0;
+ document.getElementById('main-screen').style.display = 'none';
+ document.getElementById('result-screen').style.display = 'none';
+ document.getElementById('quiz-screen').style.display = 'block';
+ showQuestion();
  }
+
  function startTimer() {
  clearInterval(timerInterval); updateTimerDisplay();
  timerInterval = setInterval(() => {
@@ -333,7 +397,7 @@
 
  function initQuizSession() {
  currentIndex = 0; wrongAnswersCount = 0;
- if (currentMode !== "errors") { failedQuestionsPool = []; }
+ failedQuestionsPool = []; 
  document.getElementById('main-screen').style.display = 'none';
  document.getElementById('result-screen').style.display = 'none';
  document.getElementById('quiz-screen').style.display = 'block';
@@ -385,7 +449,13 @@
 
  function nextQuestion() {
  currentIndex++;
- if (currentIndex < currentPool.length) { showQuestion(); } else { finishQuizSession(); }
+ if (currentIndex < currentPool.length) {
+ if (currentMode === "marathon") saveMarathonProgress();
+ showQuestion();
+ } else {
+ if (currentMode === "marathon") localStorage.removeItem('marathon_save');
+ finishQuizSession();
+ }
  }
 
  function finishQuizSession() {
@@ -419,11 +489,14 @@
  statsEl.innerText = `Всего ошибок: ${wrongAnswersCount} из ${currentPool.length}`;
  } else if (currentMode === "errors") {
  titleEl.innerText = `Проработка ошибок завершена!`;
- statsEl.innerText = `Осталось неисправленных ошибок: ${wrongAnswersCount}`;
+ statsEl.innerText = `Осталось неисправленных ошибок: ${failedQuestionsPool.length}`;
  if (activeTicketId) {
  const errorIds = failedQuestionsPool.map(item => item.id);
  localStorage.setItem(`ticket_errors_${activeTicketId}`, JSON.stringify(errorIds));
- if (errorIds.length === 0) { localStorage.setItem(`ticket_stats_${activeTicketId}`, JSON.stringify({ errors: 0 })); }
+ if (errorIds.length === 0) {
+ const savedStats = localStorage.getItem(`ticket_stats_${activeTicketId}`);
+ if (savedStats) localStorage.setItem(`ticket_stats_${activeTicketId}`, JSON.stringify({ errors: 0 }));
+ }
  }
  }
  if (failedQuestionsPool.length > 0) { errorsBtn.style.display = 'block'; errorsBtn.innerText = ` Исправить ошибки (${failedQuestionsPool.length})`; } 
@@ -438,6 +511,7 @@
  updateCategoryTabsUI();
  renderTopicsMenu();
  updateMarathonButtonUI();
+ checkMarathonProgress();
  renderTicketsMenu();
  }
  initApp();
