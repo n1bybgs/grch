@@ -1,436 +1,446 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Тренажер ГРЧЦ (С пояснениями)</title>
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#2c3e50">
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-        body { background: #f5f6fa; color: #2f3640; padding: 15px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
-        .container { width: 100%; max-width: 500px; background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-top: 10px; }
-        
-        h1 { font-size: 22px; color: #2c3e50; margin-bottom: 5px; text-align: center; }
-        .subtitle { color: #7f8c8d; text-align: center; margin-bottom: 15px; font-size: 13px; }
-        .section-title { font-weight: bold; color: #2c3e50; font-size: 15px; margin: 15px 0 8px 0; border-top: 1px solid #e1e8ed; padding-top: 12px; }
-        
-        /* Кнопки меню */
-        .menu-btn { width: 100%; padding: 12px; margin: 6px 0; background: #34495e; color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; transition: 0.2s; display: flex; justify-content: space-between; align-items: center; }
-        .menu-btn:hover { background: #2c3e50; }
-        .exam-btn { background: #2ecc71; }
-        .exam-btn:hover { background: #27ae60; }
-        .marathon-btn { background: #e67e22; }
-        .marathon-btn:hover { background: #d35400; }
-        
-        /* Сетка билетов */
-        .tickets-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-        .ticket-card { background: #f8f9fa; border: 2px solid #e1e8ed; border-radius: 8px; padding: 8px 4px; text-align: center; cursor: pointer; font-weight: bold; transition: 0.15s; font-size: 13px; display: flex; flex-direction: column; justify-content: space-between; min-height: 80px; }
-        .ticket-card:active { background: #edf2f7; }
-        .ticket-card.passed { border-color: #2ecc71; background: #e8f8f0; color: #27ae60; }
-        .ticket-badge { font-size: 10px; color: #7f8c8d; display: block; font-weight: normal; margin-top: 3px; }
-        
-        /* Маленькая внутренняя кнопка ошибок на карточке */
-        .ticket-errors-btn { background: #e74c3c; color: white; border: none; border-radius: 4px; padding: 3px 0; margin-top: 5px; font-size: 10px; font-weight: bold; width: 100%; cursor: pointer; }
-        .ticket-errors-btn:hover { background: #c0392b; }
-        
-        /* Экран теста */
-        #quiz-screen { display: none; }
-        .progress-bar { font-size: 13px; color: #7f8c8d; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center; }
-        #timer-text { font-weight: bold; color: #e74c3c; background: #fadbd8; padding: 2px 8px; border-radius: 4px; display: none; }
-        .topic-text { font-size: 11px; color: #95a5a6; font-weight: bold; text-transform: uppercase; margin-bottom: 12px; line-height: 1.2; }
-        .question-text { font-size: 16px; font-weight: 600; margin-bottom: 15px; line-height: 1.4; }
-        .question-img { width: 100%; max-height: 160px; object-fit: contain; background: #f8f9fa; border-radius: 8px; margin-bottom: 15px; border: 1px solid #e1e8ed; }
-        
-        /* Блок плашки пояснения ответа */
-        .explanation-box { background: #ebf5fb; border-left: 4px solid #3498db; padding: 12px; border-radius: 0 8px 8px 0; margin: 10px 0; font-size: 13px; line-height: 1.4; color: #2c3e50; display: none; animation: fadeIn 0.3s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
-        
-        /* Варианты ответов */
-        .option-btn { width: 100%; padding: 12px; margin: 6px 0; background: #f8f9fa; border: 2px solid #e1e8ed; border-radius: 8px; font-size: 14px; text-align: left; cursor: pointer; transition: 0.15s; line-height: 1.3; }
-        .option-btn.correct { background: #2ecc71 !important; border-color: #27ae60 !important; color: white; font-weight: bold; }
-        .option-btn.wrong { background: #e74c3c !important; border-color: #c0392b !important; color: white; }
-        
-        /* Навигация */
-        .controls-row { display: flex; gap: 10px; margin-top: 15px; }
-        .control-btn { flex: 1; padding: 12px; border: none; border-radius: 8px; font-size: 15px; font-weight: bold; cursor: pointer; }
-        #next-btn { background: #3498db; color: white; display: none; }
-        #leave-btn { background: #95a5a6; color: white; }
-        
-        /* Экран результатов */
-        #result-screen { display: none; text-align: center; }
-        .result-title { font-size: 20px; font-weight: bold; margin-bottom: 10px; }
-        .status-badge { display: inline-block; padding: 6px 15px; border-radius: 20px; font-weight: bold; color: white; margin-bottom: 15px; font-size: 14px; display: none; }
-        .status-badge.success { background: #2ecc71; }
-        .status-badge.fail { background: #e74c3c; }
-        .result-stats { font-size: 15px; margin-bottom: 15px; color: #34495e; }
-        .action-btn { width: 100%; padding: 12px; margin: 5px 0; border: none; border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; }
-        .btn-retry-errors { background: #e74c3c; color: white; display: none; }
-        .btn-menu { background: #7f8c8d; color: white; }
-    </style>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>Тренажер ГРЧЦ (С пояснениями)</title>
+ <link rel="manifest" href="manifest.json">
+ <meta name="theme-color" content="#2c3e50">
+ <style>
+ * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+ body { background: #f5f6fa; color: #2f3640; padding: 15px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+ .container { width: 100%; max-width: 500px; background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-top: 10px; }
+ 
+ h1 { font-size: 22px; color: #2c3e50; margin-bottom: 5px; text-align: center; }
+ .subtitle { color: #7f8c8d; text-align: center; margin-bottom: 15px; font-size: 13px; }
+ .section-title { font-weight: bold; color: #2c3e50; font-size: 15px; margin: 15px 0 8px 0; border-top: 1px solid #e1e8ed; padding-top: 12px; }
+ 
+ /* Блок переключателя категорий */
+ .category-selector-box { background: #ebf5fb; border: 1px solid #aed6f1; border-radius: 8px; padding: 12px; margin-bottom: 15px; text-align: center; }
+ .category-selector-box p { font-size: 13px; font-weight: bold; color: #2c3e50; margin-bottom: 8px; }
+ .cat-tabs { display: flex; gap: 5px; }
+ .cat-tab-btn { flex: 1; padding: 8px 0; border: 2px solid #3498db; background: white; color: #3498db; border-radius: 6px; font-size: 13px; font-weight: bold; cursor: pointer; transition: 0.15s; }
+ .cat-tab-btn.active { background: #3498db; color: white; }
+
+ /* Кнопки меню */
+ .menu-btn { width: 100%; padding: 12px; margin: 6px 0; background: #34495e; color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; transition: 0.2s; display: flex; justify-content: space-between; align-items: center; }
+ .menu-btn:hover { background: #2c3e50; }
+ .exam-btn { background: #2ecc71; }
+ .exam-btn:hover { background: #27ae60; }
+ .marathon-btn { background: #e67e22; }
+ .marathon-btn:hover { background: #d35400; }
+ 
+ /* Сетка тем */
+ .topics-grid { display: flex; flex-direction: column; gap: 8px; }
+ .topic-card { background: #f8f9fa; border: 2px solid #e1e8ed; border-radius: 8px; padding: 12px 14px; cursor: pointer; transition: 0.15s; font-size: 13px; line-height: 1.4; display: flex; justify-content: space-between; align-items: center; }
+ .topic-card:active { background: #edf2f7; }
+ .topic-title { font-weight: 600; color: #2c3e50; text-align: left; padding-right: 15px; }
+ .topic-count { font-size: 11px; color: #7f8c8d; white-space: nowrap; background: #e1e8ed; padding: 3px 8px; border-radius: 4px; font-weight: bold; }
+
+ /* Сетка билетов */
+ .tickets-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+ .ticket-card { background: #f8f9fa; border: 2px solid #e1e8ed; border-radius: 8px; padding: 8px 4px; text-align: center; cursor: pointer; font-weight: bold; transition: 0.15s; font-size: 13px; display: flex; flex-direction: column; justify-content: space-between; min-height: 80px; }
+ .ticket-card:active { background: #edf2f7; }
+ .ticket-card.passed { border-color: #2ecc71; background: #e8f8f0; color: #27ae60; }
+ .ticket-badge { font-size: 10px; color: #7f8c8d; display: block; font-weight: normal; margin-top: 3px; }
+ .ticket-errors-btn { background: #e74c3c; color: white; border: none; border-radius: 4px; padding: 3px 0; margin-top: 5px; font-size: 10px; font-weight: bold; width: 100%; cursor: pointer; }
+ .ticket-errors-btn:hover { background: #c0392b; }
+ /* Экран теста */
+ #quiz-screen { display: none; }
+ .progress-bar { font-size: 13px; color: #7f8c8d; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center; }
+ #timer-text { font-weight: bold; color: #e74c3c; background: #fadbd8; padding: 2px 8px; border-radius: 4px; display: none; }
+ .topic-text { font-size: 11px; color: #95a5a6; font-weight: bold; text-transform: uppercase; margin-bottom: 12px; line-height: 1.2; }
+ .question-text { font-size: 16px; font-weight: 600; margin-bottom: 15px; line-height: 1.4; }
+ .question-img { width: 100%; max-height: 160px; object-fit: contain; background: #f8f9fa; border-radius: 8px; margin-bottom: 15px; border: 1px solid #e1e8ed; }
+ 
+ .explanation-box { background: #ebf5fb; border-left: 4px solid #3498db; padding: 12px; border-radius: 0 8px 8px 0; margin: 10px 0; font-size: 13px; line-height: 1.4; color: #2c3e50; display: none; animation: fadeIn 0.3s ease; }
+ @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+ 
+ .option-btn { width: 100%; padding: 12px; margin: 6px 0; background: #f8f9fa; border: 2px solid #e1e8ed; border-radius: 8px; font-size: 14px; text-align: left; cursor: pointer; transition: 0.15s; line-height: 1.3; }
+ .option-btn.correct { background: #2ecc71 !important; border-color: #27ae60 !important; color: white; font-weight: bold; }
+ .option-btn.wrong { background: #e74c3c !important; border-color: #c0392b !important; color: white; }
+ 
+ .controls-row { display: flex; gap: 10px; margin-top: 15px; }
+ .control-btn { flex: 1; padding: 12px; border: none; border-radius: 8px; font-size: 15px; font-weight: bold; cursor: pointer; }
+ #next-btn { background: #3498db; color: white; display: none; }
+ #leave-btn { background: #95a5a6; color: white; }
+ 
+ #result-screen { display: none; text-align: center; }
+ .result-title { font-size: 20px; font-weight: bold; margin-bottom: 10px; }
+ .status-badge { display: inline-block; padding: 6px 15px; border-radius: 20px; font-weight: bold; color: white; margin-bottom: 15px; font-size: 14px; display: none; }
+ .status-badge.success { background: #2ecc71; }
+ .status-badge.fail { background: #e74c3c; }
+ .result-stats { font-size: 15px; margin-bottom: 15px; color: #34495e; }
+ .action-btn { width: 100%; padding: 12px; margin: 5px 0; border: none; border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; }
+ .btn-retry-errors { background: #e74c3c; color: white; display: none; }
+ .btn-menu { background: #7f8c8d; color: white; }
+ </style>
 </head>
 <body>
+ <div id="main-screen" class="container">
+ <h1>Тренажер ГРЧЦ</h1>
+ <p class="subtitle">Подготовка к сдаче радиолюбительского экзамена</p>
+ 
+ <div class="category-selector-box">
+ <p>Ваша категория (для фильтрации обучения):</p>
+ <div class="cat-tabs">
+ <button class="cat-tab-btn" id="cat-btn-4" onclick="setTargetCategory(4)">4-я</button>
+ <button class="cat-tab-btn" id="cat-btn-3" onclick="setTargetCategory(3)">3-я</button>
+ <button class="cat-tab-btn" id="cat-btn-2" onclick="setTargetCategory(2)">2-я</button>
+ <button class="cat-tab-btn" id="cat-btn-1" onclick="setTargetCategory(1)">1-я</button>
+ </div>
+ </div>
+ 
+ <p class="section-title" style="border-top: none; padding-top: 0;"> Симуляция экзамена ГРЧЦ:</p>
+ <button class="menu-btn exam-btn" onclick="startExam(4)"><span> Сдать на 4 категорию</span><span style="font-size:11px;font-weight:normal;">20 вопр / 60 мин</span></button>
+ <button class="menu-btn exam-btn" onclick="startExam(3)"><span> Сдать на 3 категорию</span><span style="font-size:11px;font-weight:normal;">25 вопр / 60 мин</span></button>
+ <button class="menu-btn exam-btn" onclick="startExam(2)"><span> Сдать на 2 категорию</span><span style="font-size:11px;font-weight:normal;">30 вопр / 60 мин</span></button>
+ <button class="menu-btn exam-btn" onclick="startExam(1)"><span> Сдать на 1 категорию</span><span style="font-size:11px;font-weight:normal;">45 вопр / 60 мин</span></button>
+ 
+ <p class="section-title"> Дополнительные режимы:</p>
+ <button class="menu-btn marathon-btn" onclick="startMarathon()"><span>Режим «Марафон»</span><span style="font-size: 11px; font-weight: normal;" id="marathon-count-text">Загрузка...</span></button>
+ 
+ <p class="section-title"> Изучение по темам:</p>
+ <div class="topics-grid" id="topics-container"></div>
+ 
+ <p class="section-title"> Изучение по билетам:</p>
+ <div class="tickets-grid" id="tickets-container"></div>
+ </div>
 
-    <!-- ГЛАВНЫЙ ЭКРАН -->
-    <div id="main-screen" class="container">
-        <h1>Тренажер ГРЧЦ</h1>
-        <p class="subtitle">Подготовка к сдаче радиолюбительского экзамена</p>
-        
-        <p class="section-title" style="border-top: none; padding-top: 0;">🎓 Симуляция экзамена ГРЧЦ:</p>
-        <button class="menu-btn exam-btn" onclick="startExam(4)"><span>📝 Сдать на 4 категорию</span><span style="font-size:11px;font-weight:normal;">20 вопр / 60 мин</span></button>
-        <button class="menu-btn exam-btn" onclick="startExam(3)"><span>📝 Сдать на 3 категорию</span><span style="font-size:11px;font-weight:normal;">25 вопр / 60 мин</span></button>
-        <button class="menu-btn exam-btn" onclick="startExam(2)"><span>📝 Сдать на 2 категорию</span><span style="font-size:11px;font-weight:normal;">30 вопр / 60 мин</span></button>
-        <button class="menu-btn exam-btn" onclick="startExam(1)"><span>📝 Сдать на 1 категорию</span><span style="font-size:11px;font-weight:normal;">45 вопр / 60 мин</span></button>
-        
-        <p class="section-title">🏃 Дополнительные режимы:</p>
-        <button class="menu-btn marathon-btn" onclick="startMarathon()"><span>🏃 Режим «Марафон»</span><span style="font-size: 11px; font-weight: normal;">Все 426 вопр.</span></button>
-        
-        <p class="section-title">📋 Изучение по билетам:</p>
-        <div class="tickets-grid" id="tickets-container"></div>
-    </div>
+ <div id="quiz-screen" class="container">
+ <div class="progress-bar">
+ <span id="progress-text">Вопрос 1 из 24</span>
+ <span id="timer-text">60:00</span>
+ <span id="score-text">Ошибок: 0</span>
+ </div>
+ <div id="topic-field" class="topic-text">Тема</div>
+ <div id="question-field" class="question-text">Текст вопроса</div>
+ <img id="image-field" class="question-img" src="" alt="Схема" style="display: none;">
+ <div id="options-container"></div>
+ <div id="explanation-field" class="explanation-box"></div>
+ <div class="controls-row">
+ <button id="leave-btn" class="control-btn" onclick="exitToMenu()">Выйти</button>
+ <button id="next-btn" class="control-btn" onclick="nextQuestion()">Дальше</button>
+ </div>
+ </div>
 
-    <!-- ЭКРАН ТЕСТА -->
-    <div id="quiz-screen" class="container">
-        <div class="progress-bar">
-            <span id="progress-text">Вопрос 1 из 24</span>
-            <span id="timer-text">60:00</span>
-            <span id="score-text">Ошибок: 0</span>
-        </div>
-        <div id="topic-field" class="topic-text">Тема</div>
-        <div id="question-field" class="question-text">Текст вопроса</div>
-        <img id="image-field" class="question-img" src="" alt="Схема" style="display: none;">
-        
-        <div id="options-container"></div>
-        <div id="explanation-field" class="explanation-box"></div>
-        
-        <div class="controls-row">
-            <button id="leave-btn" class="control-btn" onclick="exitToMenu()">Выйти</button>
-            <button id="next-btn" class="control-btn" onclick="nextQuestion()">Дальше</button>
-        </div>
-    </div>
+ <div id="result-screen" class="container">
+ <div class="result-title" id="res-title">Результаты</div>
+ <div class="status-badge" id="res-badge">ЭКЗАМЕН СДАН</div>
+ <div class="result-stats" id="res-stats">Ошибок: 0</div>
+ <button class="action-btn btn-retry-errors" id="errors-btn" onclick="startErrorsRetry()"> Проработка ошибок</button>
+ <button class="action-btn btn-menu" onclick="exitToMenu()"> В главное меню</button>
+ </div>
 
-    <!-- ЭКРАН РЕЗУЛЬТАТОВ -->
-    <div id="result-screen" class="container">
-        <div class="result-title" id="res-title">Результаты</div>
-        <div class="status-badge" id="res-badge">ЭКЗАМЕН СДАН</div>
-        <div class="result-stats" id="res-stats">Ошибок: 0</div>
-        
-        <button class="action-btn btn-retry-errors" id="errors-btn" onclick="startErrorsRetry()">❌ Проработка ошибок</button>
-        <button class="action-btn btn-menu" onclick="exitToMenu()">🏠 В главное меню</button>
-    </div>
 <script>
-    let allQuestions = [];       
-    let currentPool = [];        
-    let currentIndex = 0;        
-    let wrongAnswersCount = 0;   
-    let isAnswered = false;      
-    let currentMode = "";        // "ticket", "marathon", "exam", "errors"
-    let activeTicketId = null;   
-    let activeCategoryNum = null;
-    let failedQuestionsPool = []; 
-    
-    let timerInterval = null;
-    let timeLeft = 0;
+ let allQuestions = []; 
+ let currentPool = []; 
+ let currentIndex = 0; 
+ let wrongAnswersCount = 0; 
+ let isAnswered = false; 
+ let currentMode = ""; 
+ let activeTicketId = null; 
+ let activeCategoryNum = null;
+ let activeTopicId = null;
+ let failedQuestionsPool = []; 
+ let timerInterval = null;
+ let timeLeft = 0;
+ 
+ let targetCategory = parseInt(localStorage.getItem('grfc_target_category')) || 4;
 
-    const examRules = {
-        4: { qCount: 20, time: 60, maxErrors: 4 },
-        3: { qCount: 25, time: 60, maxErrors: 5 },
-        2: { qCount: 30, time: 60, maxErrors: 6 },
-        1: { qCount: 45, time: 60, maxErrors: 9 }
-    };
+ const examRules = {
+ 4: { qCount: 20, time: 60, maxErrors: 4 },
+ 3: { qCount: 25, time: 30, maxErrors: 5 },
+ 2: { qCount: 30, time: 30, maxErrors: 6 },
+ 1: { qCount: 45, time: 45, maxErrors: 9 }
+ };
 
-    const ticketRanges = [
-        { id: 1, start: 1, end: 24 },    { id: 2, start: 25, end: 48 },   { id: 3, start: 49, end: 72 },
-        { id: 4, start: 73, end: 96 },   { id: 5, start: 97, end: 120 },  { id: 6, start: 121, end: 144 },
-        { id: 7, start: 145, end: 168 }, { id: 8, start: 169, end: 192 }, { id: 9, start: 193, end: 216 },
-        { id: 10, start: 217, end: 240 },{ id: 11, start: 241, end: 264 },{ id: 12, start: 265, end: 288 },
-        { id: 13, start: 289, end: 311 },{ id: 14, start: 312, end: 334 },{ id: 15, start: 335, end: 357 },
-        { id: 16, start: 358, end: 380 },{ id: 17, start: 381, end: 403 },{ id: 18, start: 404, end: 426 }
-    ];
+ const ticketRanges = [
+ { id: 1, start: 1, end: 24 }, { id: 2, start: 25, end: 48 }, { id: 3, start: 49, end: 72 },
+ { id: 4, start: 73, end: 96 }, { id: 5, start: 97, end: 120 }, { id: 6, start: 121, end: 144 },
+ { id: 7, start: 145, end: 168 }, { id: 8, start: 169, end: 192 }, { id: 9, start: 193, end: 216 },
+ { id: 10, start: 217, end: 240 },{ id: 11, start: 241, end: 264 },{ id: 12, start: 265, end: 288 },
+ { id: 13, start: 289, end: 311 },{ id: 14, start: 312, end: 334 },{ id: 15, start: 335, end: 357 },
+ { id: 16, start: 358, end: 380 },{ id: 17, start: 381, end: 403 },{ id: 18, start: 404, end: 426 }
+ ];
 
-    async function initApp() {
-        try {
-            const response = await fetch('grfc_questions.json');
-            allQuestions = await response.json();
-            renderTicketsMenu();
-        } catch (error) {
-            alert('Ошибка загрузки базы вопросов JSON.');
-        }
-    }
+ const topicConfigs = [
+ { id: 1, title: "Международные правила, нормы и терминология", keyword: "международные правила" },
+ { id: 2, title: "Нормативные правовые акты РФ (частотный спектр)", keyword: "нормативные правовые акты" },
+ { id: 3, title: "Правила и процедуры установления радиосвязи", keyword: "процедуры установления" },
+ { id: 4, title: "Виды радиосвязи (телефония, телеграфия, цифра)", keyword: "виды радиосвязи" },
+ { id: 5, title: "Теория радиосистем, антенны и распространение волн", keyword: "теория радиосистем" },
+ { id: 6, title: "Параметры радиосистем, единицы и приборы", keyword: "параметры и характеристики" },
+ { id: 7, title: "Безопасность при эксплуатации РЭС и первая помощь", keyword: "безопасность при эксплуатации" },
+ { id: 8, title: "Электромагнитная совместимость и помехи", keyword: "электромагнитная совместимость" }
+ ];
+ async function initApp() {
+ try {
+ const response = await fetch('grfc_questions.json');
+ allQuestions = await response.json();
+ updateCategoryTabsUI();
+ renderTopicsMenu();
+ updateMarathonButtonUI();
+ renderTicketsMenu();
+ } catch (error) {
+ alert('Ошибка загрузки базы вопросов JSON.');
+ }
+ }
 
-    function renderTicketsMenu() {
-        const grid = document.getElementById('tickets-container');
-        grid.innerHTML = '';
-        ticketRanges.forEach(t => {
-            const card = document.createElement('div');
-            card.className = 'ticket-card';
-            
-            const savedStats = localStorage.getItem(`ticket_stats_${t.id}`);
-            const savedErrorIds = localStorage.getItem(`ticket_errors_${t.id}`);
-            
-            let badgeText = `${t.end - t.start + 1} вопр.`;
-            let hasErrors = false;
-            let errorCount = 0;
-            
-            if (savedErrorIds) {
-                const errIds = JSON.parse(savedErrorIds);
-                if (errIds.length > 0) {
-                    hasErrors = true;
-                    errorCount = errIds.length;
-                }
-            }
+ function setTargetCategory(catNum) {
+ targetCategory = catNum;
+ localStorage.setItem('grfc_target_category', catNum);
+ updateCategoryTabsUI();
+ renderTopicsMenu();
+ updateMarathonButtonUI();
+ }
 
-            if (savedStats) {
-                const stats = JSON.parse(savedStats);
-                card.classList.add('passed');
-                badgeText = `Ошибок: ${stats.errors}`;
-            }
-            
-            // Основной текст карточки
-            const infoSpan = document.createElement('span');
-            infoSpan.innerHTML = `Билет ${t.id} <span class="ticket-badge">${badgeText}</span>`;
-            infoSpan.style.cursor = "pointer";
-            infoSpan.onclick = () => startTicket(t.id);
-            card.appendChild(infoSpan);
-            
-            // Если в билете сохранены ошибки, добавляем отдельную кнопку для их запуска
-            if (hasErrors) {
-                const errBtn = document.createElement('button');
-                errBtn.className = 'ticket-errors-btn';
-                errBtn.innerText = `Ошибки (${errorCount})`;
-                errBtn.onclick = (e) => {
-                    e.stopPropagation(); // изолируем клик от основной карточки
-                    startSavedTicketErrors(t.id);
-                };
-                card.appendChild(errBtn);
-            }
-            
-            grid.appendChild(card);
-        });
-    }
+ function updateCategoryTabsUI() {
+ for (let i = 1; i <= 4; i++) {
+ const btn = document.getElementById(`cat-btn-${i}`);
+ if (btn) {
+ if (i === targetCategory) btn.classList.add('active');
+ else btn.classList.remove('active');
+ }
+ }
+ }
 
-    // Запуск сохраненных ошибок конкретного билета из главного меню
-    function startSavedTicketErrors(ticketId) {
-        currentMode = "errors";
-        activeTicketId = ticketId;
-        const savedErrorIds = JSON.parse(localStorage.getItem(`ticket_errors_${ticketId}`) || "[]");
-        
-        currentPool = allQuestions.filter(q => savedErrorIds.includes(q.id));
-        document.getElementById('timer-text').style.display = 'none';
-        initQuizSession();
-    }
+ function updateMarathonButtonUI() {
+ const allowed = allQuestions.filter(q => q.categories && q.categories.includes(targetCategory));
+ document.getElementById('marathon-count-text').innerText = `${allowed.length} вопр. из 426`;
+ }
 
-    function startExam(categoryNum) {
-        currentMode = "exam";
-        activeCategoryNum = categoryNum;
-        activeTicketId = null;
-        const rules = examRules[categoryNum];
-        let available = allQuestions.filter(q => q.categories.includes(categoryNum));
-        available.sort(() => Math.random() - 0.5);
-        currentPool = available.slice(0, rules.qCount);
-        timeLeft = rules.time * 60;
-        document.getElementById('timer-text').style.display = 'block';
-        startTimer();
-        initQuizSession();
-    }
+ function renderTopicsMenu() {
+ const container = document.getElementById('topics-container');
+ container.innerHTML = '';
+ topicConfigs.forEach(t => {
+ const card = document.createElement('div');
+ card.className = 'topic-card';
+ card.onclick = () => startTopic(t.id);
+ 
+ const count = allQuestions.filter(q => 
+ q.topic && q.topic.toLowerCase().includes(t.keyword.toLowerCase()) &&
+ q.categories && q.categories.includes(targetCategory)
+ ).length;
+ 
+ if (count === 0) {
+ card.style.opacity = "0.5";
+ card.onclick = null;
+ card.style.cursor = "default";
+ }
+ card.innerHTML = `<span class="topic-title">${t.title}</span><span class="topic-count">${count} вопр.</span>`;
+ container.appendChild(card);
+ });
+ }
 
-    function startTicket(ticketId) {
-        currentMode = "ticket";
-        activeTicketId = ticketId;
-        const range = ticketRanges.find(r => r.id === ticketId);
-        currentPool = allQuestions.filter(q => q.id >= range.start && q.id <= range.end);
-        document.getElementById('timer-text').style.display = 'none';
-        initQuizSession();
-    }
+ function renderTicketsMenu() {
+ const grid = document.getElementById('tickets-container');
+ grid.innerHTML = '';
+ ticketRanges.forEach(t => {
+ const card = document.createElement('div');
+ card.className = 'ticket-card';
+ const savedStats = localStorage.getItem(`ticket_stats_${t.id}`);
+ const savedErrorIds = localStorage.getItem(`ticket_errors_${t.id}`);
+ let badgeText = `${t.end - t.start + 1} вопр.`;
+ let hasErrors = false; let errorCount = 0;
+ if (savedErrorIds) {
+ const errIds = JSON.parse(savedErrorIds);
+ if (errIds.length > 0) { hasErrors = true; errorCount = errIds.length; }
+ }
+ if (savedStats) {
+ const stats = JSON.parse(savedStats);
+ card.classList.add('passed');
+ badgeText = `Ошибок: ${stats.errors}`;
+ }
+ const infoSpan = document.createElement('span');
+ infoSpan.innerHTML = `Билет ${t.id} <span class="ticket-badge">${badgeText}</span>`;
+ infoSpan.style.cursor = "pointer";
+ infoSpan.onclick = () => startTicket(t.id);
+ card.appendChild(infoSpan);
+ if (hasErrors) {
+ const errBtn = document.createElement('button');
+ errBtn.className = 'ticket-errors-btn';
+ errBtn.innerText = `Ошибки (${errorCount})`;
+ errBtn.onclick = (e) => { e.stopPropagation(); startSavedTicketErrors(t.id); };
+ card.appendChild(errBtn);
+ }
+ grid.appendChild(card);
+ });
+ }
 
-    function startMarathon() {
-        currentMode = "marathon";
-        activeTicketId = null;
-        currentPool = [...allQuestions].sort((a,b) => a.id - b.id);
-        document.getElementById('timer-text').style.display = 'none';
-        initQuizSession();
-    }
+ function startSavedTicketErrors(ticketId) {
+ currentMode = "errors"; activeTicketId = ticketId;
+ const savedErrorIds = JSON.parse(localStorage.getItem(`ticket_errors_${ticketId}`) || "[]");
+ currentPool = allQuestions.filter(q => savedErrorIds.includes(q.id));
+ document.getElementById('timer-text').style.display = 'none';
+ initQuizSession();
+ }
 
-    function startErrorsRetry() {
-        currentMode = "errors";
-        currentPool = [...failedQuestionsPool];
-        document.getElementById('timer-text').style.display = 'none';
-        initQuizSession();
-    }
-    function startTimer() {
-        clearInterval(timerInterval);
-        updateTimerDisplay();
-        timerInterval = setInterval(() => {
-            timeLeft--;
-            updateTimerDisplay();
-            if (timeLeft <= 0) {
-                clearInterval(timerInterval);
-                alert('⏳ Время экзамена вышло!');
-                finishQuizSession();
-            }
-        }, 1000);
-    }
+ function startExam(categoryNum) {
+ currentMode = "exam"; activeCategoryNum = categoryNum; activeTicketId = null; activeTopicId = null;
+ const rules = examRules[categoryNum];
+ let available = allQuestions.filter(q => q.categories.includes(categoryNum));
+ available.sort(() => Math.random() - 0.5);
+ currentPool = available.slice(0, rules.qCount);
+ timeLeft = rules.time * 60;
+ document.getElementById('timer-text').style.display = 'block';
+ startTimer(); initQuizSession();
+ }
 
-    function updateTimerDisplay() {
-        const minutes = Math.floor(timeLeft / 60);
-        const seconds = timeLeft % 60;
-        document.getElementById('timer-text').innerText = 
-            `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-    }
+ function startTicket(ticketId) {
+ currentMode = "ticket"; activeTicketId = ticketId; activeCategoryNum = null; activeTopicId = null;
+ const range = ticketRanges.find(r => r.id === ticketId);
+ currentPool = allQuestions.filter(q => q.id >= range.start && q.id <= range.end);
+ document.getElementById('timer-text').style.display = 'none';
+ initQuizSession();
+ }
 
-    function initQuizSession() {
-        currentIndex = 0;
-        wrongAnswersCount = 0;
-        if (currentMode !== "errors") { failedQuestionsPool = []; }
-        document.getElementById('main-screen').style.display = 'none';
-        document.getElementById('result-screen').style.display = 'none';
-        document.getElementById('quiz-screen').style.display = 'block';
-        showQuestion();
-    }
+ function startMarathon() {
+ currentMode = "marathon"; activeTicketId = null; activeCategoryNum = null; activeTopicId = null;
+ currentPool = allQuestions.filter(q => q.categories && q.categories.includes(targetCategory)).sort((a,b) => a.id - b.id);
+ document.getElementById('timer-text').style.display = 'none';
+ initQuizSession();
+ }
 
-    function showQuestion() {
-        isAnswered = false;
-        document.getElementById('next-btn').style.display = 'none';
-        document.getElementById('explanation-field').style.display = 'none'; // прячем пояснение для нового вопроса
-        
-        const q = currentPool[currentIndex];
-        
-        document.getElementById('progress-text').innerText = `Вопрос ${currentIndex + 1} of ${currentPool.length} (№ ${q.id})`;
-        document.getElementById('score-text').innerText = `Ошибок: ${wrongAnswersCount}`;
-        document.getElementById('topic-field').innerText = q.topic;
-        document.getElementById('question-field').innerText = q.question;
+ function startTopic(topicId) {
+ currentMode = "topic"; activeTopicId = topicId; activeTicketId = null; activeCategoryNum = null;
+ const config = topicConfigs.find(t => t.id === topicId);
+ currentPool = allQuestions.filter(q => 
+ q.topic && q.topic.toLowerCase().includes(config.keyword.toLowerCase()) &&
+ q.categories && q.categories.includes(targetCategory)
+ );
+ document.getElementById('timer-text').style.display = 'none';
+ initQuizSession();
+ }
 
-        const imgEl = document.getElementById('image-field');
-        if (q.image) { imgEl.src = q.image; imgEl.style.display = 'block'; } 
-        else { imgEl.style.display = 'none'; }
+ function startErrorsRetry() {
+ currentMode = "errors"; currentPool = [...failedQuestionsPool];
+ document.getElementById('timer-text').style.display = 'none';
+ initQuizSession();
+ }
+ function startTimer() {
+ clearInterval(timerInterval); updateTimerDisplay();
+ timerInterval = setInterval(() => {
+ timeLeft--; updateTimerDisplay();
+ if (timeLeft <= 0) { clearInterval(timerInterval); alert(' Время экзамена вышло!'); finishQuizSession(); }
+ }, 1000);
+ }
 
-        const container = document.getElementById('options-container');
-        container.innerHTML = '';
-        q.options.forEach((option, idx) => {
-            const btn = document.createElement('button');
-            btn.className = 'option-btn';
-            btn.innerText = option;
-            btn.onclick = () => selectOption(btn, idx, q.correct_index);
-            container.appendChild(btn);
-        });
-    }
+ function updateTimerDisplay() {
+ const minutes = Math.floor(timeLeft / 60); const seconds = timeLeft % 60;
+ document.getElementById('timer-text').innerText = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+ }
 
-    function selectOption(selectedBtn, clickedIdx, correctIdx) {
-        if (isAnswered) return;
-        isAnswered = true;
-        const buttons = document.getElementsByClassName('option-btn');
-        const q = currentPool[currentIndex];
-        
-        if (clickedIdx === correctIdx) {
-            selectedBtn.classList.add('correct');
-        } else {
-            selectedBtn.classList.add('wrong');
-            buttons[correctIdx].classList.add('correct');
-            wrongAnswersCount++;
-            document.getElementById('score-text').innerText = `Ошибок: ${wrongAnswersCount}`;
-            if (!failedQuestionsPool.some(item => item.id === q.id)) {
-                failedQuestionsPool.push(q);
-            }
-        }
+ function initQuizSession() {
+ currentIndex = 0; wrongAnswersCount = 0;
+ if (currentMode !== "errors") { failedQuestionsPool = []; }
+ document.getElementById('main-screen').style.display = 'none';
+ document.getElementById('result-screen').style.display = 'none';
+ document.getElementById('quiz-screen').style.display = 'block';
+ showQuestion();
+ }
 
-        // Логика вывода пояснения теории
-        const expField = document.getElementById('explanation-field');
-        const correctText = q.options[correctIdx];
-        
-        // Если в JSON поле "explanation" заполнено, берем его, иначе генерируем автоматическое
-        if (q.explanation && q.explanation.trim() !== "") {
-            expField.innerHTML = `<strong>💡 Разбор теории:</strong><br>${q.explanation}`;
-        } else {
-            expField.innerHTML = `<strong>💡 На заметку:</strong> Правильный ответ основан на регламенте ГРЧЦ и правилах радиообмена: <em>"${correctText}"</em>.`;
-        }
-        expField.style.display = 'block'; // плавно показываем блок на экране
+ function showQuestion() {
+ isAnswered = false;
+ document.getElementById('next-btn').style.display = 'none';
+ document.getElementById('explanation-field').style.display = 'none';
+ const q = currentPool[currentIndex];
+ document.getElementById('progress-text').innerText = `Вопрос ${currentIndex + 1} из ${currentPool.length} (№ ${q.id})`;
+ document.getElementById('score-text').innerText = `Ошибок: ${wrongAnswersCount}`;
+ document.getElementById('topic-field').innerText = q.topic;
+ document.getElementById('question-field').innerText = q.question;
+ const imgEl = document.getElementById('image-field');
+ if (q.image) { imgEl.src = q.image; imgEl.style.display = 'block'; } else { imgEl.style.display = 'none'; }
+ const container = document.getElementById('options-container');
+ container.innerHTML = '';
+ q.options.forEach((option, idx) => {
+ const btn = document.createElement('button'); btn.className = 'option-btn'; btn.innerText = option;
+ btn.onclick = () => selectOption(btn, idx, q.correct_index);
+ container.appendChild(btn);
+ });
+ }
 
-        document.getElementById('next-btn').style.display = 'block';
-    }
+ function selectOption(selectedBtn, clickedIdx, correctIdx) {
+ if (isAnswered) return;
+ isAnswered = true;
+ const buttons = document.getElementsByClassName('option-btn');
+ const q = currentPool[currentIndex];
+ if (clickedIdx === correctIdx) { selectedBtn.classList.add('correct'); } 
+ else {
+ selectedBtn.classList.add('wrong'); buttons[correctIdx].classList.add('correct');
+ wrongAnswersCount++; document.getElementById('score-text').innerText = `Ошибок: ${wrongAnswersCount}`;
+ if (!failedQuestionsPool.some(item => item.id === q.id)) { failedQuestionsPool.push(q); }
+ }
+ const expField = document.getElementById('explanation-field');
+ const correctText = q.options[correctIdx];
+ if (q.explanation && q.explanation.trim() !== "") { expField.innerHTML = `<strong> Разбор теории:</strong><br>${q.explanation}`; } 
+ else { expField.innerHTML = `<strong> На заметку:</strong> Правильный ответ основан на регламенте ГРЧЦ и правилах радиообмена: <em>"${correctText}"</em>.`; }
+ expField.style.display = 'block';
+ document.getElementById('next-btn').style.display = 'block';
+ }
 
-    document.addEventListener('keydown', (e) => {
-        if (isAnswered && (e.key === 'Enter' || e.key === ' ')) {
-            e.preventDefault();
-            nextQuestion();
-        }
-    });
+ document.addEventListener('keydown', (e) => {
+ if (isAnswered && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); nextQuestion(); }
+ });
 
-    function nextQuestion() {
-        currentIndex++;
-        if (currentIndex < currentPool.length) { showQuestion(); } 
-        else { finishQuizSession(); }
-    }
+ function nextQuestion() {
+ currentIndex++;
+ if (currentIndex < currentPool.length) { showQuestion(); } else { finishQuizSession(); }
+ }
 
-    function finishQuizSession() {
-        clearInterval(timerInterval);
-        document.getElementById('quiz-screen').style.display = 'none';
-        document.getElementById('result-screen').style.display = 'block';
-        
-        const titleEl = document.getElementById('res-title');
-        const statsEl = document.getElementById('res-stats');
-        const badgeEl = document.getElementById('res-badge');
-        const errorsBtn = document.getElementById('errors-btn');
+ function finishQuizSession() {
+ clearInterval(timerInterval);
+ document.getElementById('quiz-screen').style.display = 'none';
+ document.getElementById('result-screen').style.display = 'block';
+ const titleEl = document.getElementById('res-title');
+ const statsEl = document.getElementById('res-stats');
+ const badgeEl = document.getElementById('res-badge');
+ const errorsBtn = document.getElementById('errors-btn');
+ badgeEl.style.display = 'none';
+ 
+ if (currentMode === "exam") {
+ titleEl.innerText = `Экзамен на ${activeCategoryNum} категорию`;
+ statsEl.innerText = `Ошибок допущено: ${wrongAnswersCount} из ${currentPool.length}`;
+ badgeEl.style.display = 'inline-block';
+ if (wrongAnswersCount <= examRules[activeCategoryNum].maxErrors) { badgeEl.innerText = " ЭКЗАМЕН СДАН"; badgeEl.className = "status-badge success"; } 
+ else { badgeEl.innerText = " НЕ СДАН"; badgeEl.className = "status-badge fail"; }
+ } else if (currentMode === "ticket") {
+ titleEl.innerText = `Билет №${activeTicketId} завершен!`;
+ statsEl.innerText = `Ошибок допущено: ${wrongAnswersCount} из ${currentPool.length}`;
+ localStorage.setItem(`ticket_stats_${activeTicketId}`, JSON.stringify({ errors: wrongAnswersCount }));
+ const errorIds = failedQuestionsPool.map(item => item.id);
+ localStorage.setItem(`ticket_errors_${activeTicketId}`, JSON.stringify(errorIds));
+ } else if (currentMode === "topic") {
+ const config = topicConfigs.find(t => t.id === activeTopicId);
+ titleEl.innerText = "Тема проработана!";
+ statsEl.innerHTML = `<span style="font-size:13px; color:#7f8c8d; display:block; margin-bottom:8px; font-weight:600;">${config.title}</span>Ошибок допущено: ${wrongAnswersCount} из ${currentPool.length}`;
+ } else if (currentMode === "marathon") {
+ titleEl.innerText = `Марафон пройден!`;
+ statsEl.innerText = `Всего ошибок: ${wrongAnswersCount} из ${currentPool.length}`;
+ } else if (currentMode === "errors") {
+ titleEl.innerText = `Проработка ошибок завершена!`;
+ statsEl.innerText = `Осталось неисправленных ошибок: ${wrongAnswersCount}`;
+ if (activeTicketId) {
+ const errorIds = failedQuestionsPool.map(item => item.id);
+ localStorage.setItem(`ticket_errors_${activeTicketId}`, JSON.stringify(errorIds));
+ if (errorIds.length === 0) { localStorage.setItem(`ticket_stats_${activeTicketId}`, JSON.stringify({ errors: 0 })); }
+ }
+ }
+ if (failedQuestionsPool.length > 0) { errorsBtn.style.display = 'block'; errorsBtn.innerText = ` Исправить ошибки (${failedQuestionsPool.length})`; } 
+ else { errorsBtn.style.display = 'none'; }
+ }
 
-        badgeEl.style.display = 'none';
-
-        if (currentMode === "exam") {
-            titleEl.innerText = `Экзамен на ${activeCategoryNum} категорию`;
-            statsEl.innerText = `Ошибок допущено: ${wrongAnswersCount} из ${currentPool.length}`;
-            badgeEl.style.display = 'inline-block';
-            if (wrongAnswersCount <= examRules[activeCategoryNum].maxErrors) {
-                badgeEl.innerText = "🎉 ЭКЗАМЕН СДАН";
-                badgeEl.className = "status-badge success";
-            } else {
-                badgeEl.innerText = "❌ НЕ СДАН";
-                badgeEl.className = "status-badge fail";
-            }
-        } else if (currentMode === "ticket") {
-            titleEl.innerText = `Билет №${activeTicketId} завершен!`;
-            statsEl.innerText = `Ошибок допущено: ${wrongAnswersCount} из ${currentPool.length}`;
-            
-            // Сохраняем общую статистику
-            localStorage.setItem(`ticket_stats_${activeTicketId}`, JSON.stringify({ errors: wrongAnswersCount }));
-            
-            // Сохраняем конкретные ID вопросов, на которых пользователь ошибся
-            const errorIds = failedQuestionsPool.map(item => item.id);
-            localStorage.setItem(`ticket_errors_${activeTicketId}`, JSON.stringify(errorIds));
-            
-        } else if (currentMode === "marathon") {
-            titleEl.innerText = `Марафон пройден!`;
-            statsEl.innerText = `Всего ошибок: ${wrongAnswersCount} из ${currentPool.length}`;
-        } else if (currentMode === "errors") {
-            titleEl.innerText = `Проработка ошибок завершена!`;
-            statsEl.innerText = `Осталось неисправленных ошибок: ${wrongAnswersCount}`;
-            
-            // Если мы дорешали ошибки внутри билета, обновляем их список в памяти устройства
-            if (activeTicketId) {
-                const errorIds = failedQuestionsPool.map(item => item.id);
-                localStorage.setItem(`ticket_errors_${activeTicketId}`, JSON.stringify(errorIds));
-                
-                // Если ошибок больше не осталось, обновляем и зеленую карточку билета на 0 ошибок
-                if (errorIds.length === 0) {
-                    localStorage.setItem(`ticket_stats_${activeTicketId}`, JSON.stringify({ errors: 0 }));
-                }
-            }
-        }
-
-        if (failedQuestionsPool.length > 0) {
-            errorsBtn.style.display = 'block';
-            errorsBtn.innerText = `❌ Исправить ошибки (${failedQuestionsPool.length})`;
-        } else {
-            errorsBtn.style.display = 'none';
-        }
-    }
-
-    function exitToMenu() {
-        clearInterval(timerInterval);
-        document.getElementById('quiz-screen').style.display = 'none';
-        document.getElementById('result-screen').style.display = 'none';
-        document.getElementById('main-screen').style.display = 'block';
-        renderTicketsMenu();
-    }
-
-    initApp();
+ function exitToMenu() {
+ clearInterval(timerInterval);
+ document.getElementById('quiz-screen').style.display = 'none';
+ document.getElementById('result-screen').style.display = 'none';
+ document.getElementById('main-screen').style.display = 'block';
+ updateCategoryTabsUI();
+ renderTopicsMenu();
+ updateMarathonButtonUI();
+ renderTicketsMenu();
+ }
+ initApp();
 </script>
 </body>
 </html>
